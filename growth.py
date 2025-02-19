@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from io import BytesIO
+import plotly.express as px
 
 # Page configuration
 st.set_page_config(page_title="Data Sweeper", layout='wide')
@@ -74,8 +75,20 @@ if uploaded_files:
 
         # Data visualization
         st.subheader("Data Visualization")
-        if st.checkbox(f"Show Data Visualization for {uploaded_file.name}"):
-            st.bar_chart(df.select_dtypes(include='number').iloc[:, :2])
+        if st.checkbox(f"Show visualization for {uploaded_file.name}"):
+            numeric_cols = df.select_dtypes(include='number').columns
+            if len(numeric_cols) >= 2:
+                fig = px.bar(
+                    df, 
+                    x=numeric_cols[0], 
+                    y=numeric_cols[1], 
+                    title=f"Bar Chart for {uploaded_file.name}",
+                    labels={numeric_cols[0]: "X-Axis", numeric_cols[1]: "Y-Axis"},
+                    template="plotly_dark"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.write("Not enough numeric columns for visualization!")
 
         # Conversion options
         st.subheader("Conversion Options")
